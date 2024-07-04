@@ -1,0 +1,154 @@
+---
+title: "Assignment - # 5"
+author: Mojisola Popoola
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+theme: cosmo
+---
+
+This is a Behavioral Risk Factor data on Tobacco use from 2011-2019. A Centers for Disease Control and Prevention (CDC), State Tobacco Activities Tracking and Evaluation (STATE) System. The Behavioral Risk Factor Surveillance System (BRFSS) is a continuous, state-based surveillance system that collects information about modifiable risk factors for chronic diseases and other leading causes of death. The data for the STATE System were extracted from the annual BRFSS surveys from participating states. Tobacco topics included are cigarette and e-cigarette use prevalence by demographics, cigarette and e-cigarette use frequency, and quit attempts. Data link [CDC Data](https://dev.socrata.com/foundry/data.cdc.gov/wsas-xwh5).
+
+# load libraries
+
+```{r, message=FALSE, warning=FALSE}
+library(haven)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(summarytools)
+```
+
+```{r}
+rm(list = ls())
+```
+
+# loading data
+
+```{r}
+Tobacco_Use <- read.csv("/Users/knowledgedivine/Desktop/Tobacco_Use.csv")
+```
+
+# Exploratory/Descriptive Analysis
+
+```{r}
+my_data <- Tobacco_Use %>% 
+  select(Year = YEAR, Abbr = LocationAbbr, State = LocationDesc, MeasureDesc, `Data_Value %` = Data_Value, Gender, Race, Age, Education)
+```
+
+# Remove any missing values if needed
+
+```{r}
+my_data<-na.omit(my_data)
+anyNA(my_data)
+```
+
+```{r}
+str(my_data) 
+```
+
+# Cleaning the data
+
+# Change character variables to factor
+
+```{r}
+my_data$Year <- as.factor(my_data$Year)
+
+str(my_data) 
+```
+
+# Summary Statistics
+
+```{r}
+summary(my_data)
+
+```
+
+# Distribution of Numeric Variables
+
+```{r}
+# Histogram for 'Data_Value %'
+ggplot(my_data, aes(x = `Data_Value %`)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of Data Value in %", x = "Data Value", y = "Frequency")
+```
+
+```{r}
+# Convert Age to a factor for categorical analysis
+my_data$Age <- as.factor(my_data$Age)
+summary(my_data$Age)
+
+# Load necessary library for visualization
+library(ggplot2)
+
+# Bar plot of Age distribution
+ggplot(my_data, aes(x = Age)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(title = "Age Distribution", x = "Age", y = "Count") +
+  coord_flip() 
+  
+```
+
+# Relationships Between Variables
+
+```{r}
+# Scatter plot between Year and Data_Value %
+ggplot(my_data, aes(x = Year, y = `Data_Value %`)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Year vs Data Value in %", x = "Year", y = "Data Value %") +
+   coord_flip() 
+
+# Box plot for Data_Value % by Gender
+ggplot(my_data, aes(x = Gender, y = `Data_Value %`)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Data Value % by Gender", x = "Gender", y = "Data Value %")
+
+# Box plot for Data_Value % by Race
+ggplot(my_data, aes(x = Race, y = `Data_Value %`)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Data Value % by Race", x = "Race", y = "Data Value %") +
+   coord_flip() 
+```
+
+# Table 1. Descriptive Statistics
+
+```{r}
+library(dplyr)
+library(gtsummary)
+
+# Select relevant columns
+my_data %>%
+  dplyr::select(all_of(c("Year", "Age","Gender","Race", "MeasureDesc", "Education"))) -> my_data_baseline
+
+# Create summary table
+my_data_baseline %>%
+  tbl_summary(
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})"),
+    missing_text = "(Missing)"
+  )
+```
+
+# plot to seeif it's approximately normal,
+
+```{r}
+# Histogram of the continuous variable
+ggplot(my_data, aes(x = `Data_Value %`)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Histogram of Data Values", x = "Data_Value %", y = "Frequency")
+
+# Q-Q plot of the continuous variable
+qqnorm(my_data$`Data_Value %`, main = "Q-Q Plot of Data Values")
+qqline(my_data$`Data_Value %`, col = "red")
+
+# Density plot of the continuous variable
+ggplot(my_data, aes(x = `Data_Value %`)) +
+  geom_density(fill = "blue", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Density Plot of Data Values", x = "Data_Value %", y = "Density")
+```
+
+The graphs show tha the distributions are not normally distributed due to the fact that the Q-Q plot has few points at the ends that deviate significantly from the line, indicating potential outliers or deviations in the tails.
