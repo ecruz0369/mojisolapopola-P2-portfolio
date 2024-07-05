@@ -27,7 +27,7 @@ rm(list = ls())
 # loading data
 
 ```{r}
-Tobacco_Use <- read.csv("/Users/knowledgedivine/Desktop/Tobacco_Use.csv")
+Tobacco_Use <- read.csv("Tobacco_Use.csv")
 ```
 
 # Exploratory/Descriptive Analysis
@@ -152,3 +152,77 @@ ggplot(my_data, aes(x = `Data_Value %`)) +
 ```
 
 The graphs show tha the distributions are not normally distributed due to the fact that the Q-Q plot has few points at the ends that deviate significantly from the line, indicating potential outliers or deviations in the tails.
+
+## Amelia Tristan contributed to this exercise.
+
+```{r}
+set.seed(1000)
+n = 1200
+
+data_val = round(runif(n, 0, 100), 2)
+
+#creating smoking data set with age, year, gender, race, education, and smoking status
+age_levels = c("18 to 24 Years", "All Ages", "Age 25 and Older", "Age 20 and Older", "65 Years and Older", "45 to 64 Years", "25 to 44 Years", "18 to 44 Years")
+year_levels = c("2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019")
+gender_levels = c("Male", "Female", "Overall")
+race_levels = c("All Races", "White", "Hispanic", "Asian/Pacific Islander", "African American", "American Indian/Alaska Native")
+education_levels = c("All Grades", "> 12th Grade", "< 12th Grade", "12th Grade")
+smoke_status = c("Current", "Never", "In the past year", "In the past 3 months", "In the past month", "Socially", "Occasionally")
+
+#creating sample
+age = sample(age_levels, n, replace = TRUE, prob = c(round(runif(8, 0, 1),2)))
+year = sample(year_levels, n, replace = TRUE, prob = c(round(runif(9, 0, 1),2)))
+gender = sample(gender_levels, n, replace = TRUE, prob = c(round(runif(3, 0, 1),2)))
+race = sample(race_levels, n, replace = TRUE, prob = c(round(runif(6, 0, 1),2)))
+education = sample(education_levels, n, replace = TRUE, prob = c(round(runif(4, 0, 1),2)))
+smoking = sample(smoke_status, n, replace = TRUE, prob = c(round(runif(7, 0, 1),2)))
+
+tob_fake = data.frame(age, year, gender, race, education, smoking, data_val)
+summary(tob_fake)
+```
+```{r}
+# Histogram for data_val
+ggplot(tob_fake, aes(x = data_val)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of Data Value in %", x = "Data Value", y = "Frequency")
+```
+The data values are more evenly distributed than the original data with no apparent skewed distribution(normal).
+
+```{r}
+#age to factor as Moji did
+tob_fake$age <- as.factor(tob_fake$age)
+
+# Bar plot of Age distribution
+ggplot(tob_fake, aes(x = age)) +
+  geom_bar() +
+  labs(title = "Age Distribution", x = "Age", y = "Count") +
+  coord_flip() 
+
+```
+The same can be said for age (normally distributed). All ages has the third highest frequency, unlike the original data (all ages was the top age range).
+
+```{r}
+# Box plot for data_val by Gender
+ggplot(tob_fake, aes(x = gender, y = data_val)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Data Value by Gender", x = "Gender", y = "Data Value %")
+
+# Box plot for data_val by Race
+ggplot(tob_fake, aes(x = race, y = data_val)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Data Value by Race", x = "Race", y = "Data Value %")
+
+#bar plot of smoking status by race
+ggplot(tob_fake, aes(x = race)) + geom_bar() + facet_wrap(~smoking) + labs(x = "Race", y = "Smoking Status", title = "Smoking Status Frequency by Race") + coord_flip()
+
+#bar plot of smoking status by education
+ggplot(tob_fake, aes(x = education)) + geom_bar() + facet_wrap(~smoking) + labs(x = "Education Level", y = "Smoking Status", title = "Smoking Status Frequency by Education Level") + coord_flip()
+```
+Data values have little variance by gender and race. Race is normally distributed by smoking status across all levels. Education level is skewed by smoking status across all levels.
+```{r}
+# Q-Q plot of the continuous variable
+qqnorm(tob_fake$data_val, main = "Q-Q Plot of Data Values")
+qqline(tob_fake$data_val, col = "red")
+```
+The plot is not normally distributed and is actually similar to the original data's qqplot. This contradicts the histogram of data values that suggests it is normally distributed.
+
