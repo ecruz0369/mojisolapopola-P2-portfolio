@@ -180,12 +180,14 @@ smoking = sample(smoke_status, n, replace = TRUE, prob = c(round(runif(7, 0, 1),
 tob_fake = data.frame(age, year, gender, race, education, smoking, data_val)
 summary(tob_fake)
 ```
+
 ```{r}
 # Histogram for data_val
 ggplot(tob_fake, aes(x = data_val)) +
   geom_histogram(binwidth = 1, fill = "blue", color = "black") +
   labs(title = "Distribution of Data Value in %", x = "Data Value", y = "Frequency")
 ```
+
 The data values are more evenly distributed than the original data with no apparent skewed distribution(normal).
 
 ```{r}
@@ -199,6 +201,7 @@ ggplot(tob_fake, aes(x = age)) +
   coord_flip() 
 
 ```
+
 The same can be said for age (normally distributed). All ages has the third highest frequency, unlike the original data (all ages was the top age range).
 
 ```{r}
@@ -218,11 +221,13 @@ ggplot(tob_fake, aes(x = race)) + geom_bar() + facet_wrap(~smoking) + labs(x = "
 #bar plot of smoking status by education
 ggplot(tob_fake, aes(x = education)) + geom_bar() + facet_wrap(~smoking) + labs(x = "Education Level", y = "Smoking Status", title = "Smoking Status Frequency by Education Level") + coord_flip()
 ```
+
 Data values have little variance by gender and race. Race is normally distributed by smoking status across all levels. Education level is skewed by smoking status across all levels.
+
 ```{r}
 # Q-Q plot of the continuous variable
 qqnorm(tob_fake$data_val, main = "Q-Q Plot of Data Values")
 qqline(tob_fake$data_val, col = "red")
 ```
-The plot is not normally distributed and is actually similar to the original data's qqplot. This contradicts the histogram of data values that suggests it is normally distributed.
 
+The plot is not normally distributed and is actually similar to the original data's qqplot. This contradicts the histogram of data values that suggests it is normally distributed.
